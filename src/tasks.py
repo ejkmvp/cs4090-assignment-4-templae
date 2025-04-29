@@ -17,12 +17,28 @@ def load_tasks(file_path=DEFAULT_TASKS_FILE):
     """
     try:
         with open(file_path, "r") as f:
-            return json.load(f)
+            content = json.load(f)
+            assert type(content) == list #assert that the content is a list
+            for task in content:
+                assert set(task.keys()) == set(["id", "title", "description", "priority", "category", "due_date", "completed", "created_at"]) #assert all keys are present
+                #assert expectations on all fields
+                assert type(task["id"]) == int
+                assert type(task["title"]) == str
+                assert type(task["description"]) == str
+                assert task["priority"] in ["Low", "Medium", "High"]
+                assert task["category"] in ["Work", "Personal", "School", "Other"]
+                assert type(task["due_date"]) == str
+                assert type(task["completed"]) == bool
+                assert type(task["created_at"]) == str
+            return content
     except FileNotFoundError:
         return []
     except json.JSONDecodeError:
         # Handle corrupted JSON file
         print(f"Warning: {file_path} contains invalid JSON. Creating new tasks list.")
+        return []
+    except AssertionError as e:
+        print(f"Warning: {file_path} contains invalid tasks. Creating new task list: {e}")
         return []
 
 def save_tasks(tasks, file_path=DEFAULT_TASKS_FILE):
@@ -107,7 +123,7 @@ def search_tasks(tasks, query):
            query in task.get("description", "").lower()
     ]
 
-def get_overdue_tasks(tasks):
+def get_overdue_tasks(tasks, filterOverdue="Overdue"):
     """
     Get tasks that are past their due date and not completed.
     
@@ -118,8 +134,25 @@ def get_overdue_tasks(tasks):
         list: List of overdue tasks
     """
     today = datetime.now().strftime("%Y-%m-%d")
+    if filterOverdue == "All":
+        return tasks
+    if filterOverdue == "Not Overdue":
+        return [
+            task for task in tasks 
+            if not task.get("completed", False) and 
+            task.get("due_date", "") >= today
+        ]
     return [
         task for task in tasks 
         if not task.get("completed", False) and 
-           task.get("due_date", "") < today
+        task.get("due_date", "") < today
     ]
+
+def order_tasks(tasks, order_by):
+    if order_by == "Priority":
+        priorityMap = {"High": 1, "Medium": 2, "Low": 3}
+        return sorted(tasks, key=(lambda x: priorityMap.get(x.get("priority", ""), 3)))    
+    if order_by == "Category":
+        return sorted(tasks, key=(lambda x: x.get("category", "")))
+    if order_by == "Due Date":
+        return sorted(tasks, key=(lambda x: x.get("due_date", "")))
