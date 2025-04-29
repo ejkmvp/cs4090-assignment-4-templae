@@ -51,7 +51,7 @@ def taskListTwo():
 #Feature 1 - Add filtering for overdue tasks
 #Test 1 - overdue task function returns overdue tasks that are not completed
 def test_tdd_get_overdue_tasks_overdue(taskListOne):
-    overdueTasks = get_overdue_tasks(taskListOne, "Overdue")
+    overdueTasks = get_overdue_tasks(taskListOne)
     assert len(overdueTasks) == 1
     assert set([overdueTasks[0]['id']]) == set([1])
 

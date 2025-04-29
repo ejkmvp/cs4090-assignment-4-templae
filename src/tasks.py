@@ -124,15 +124,6 @@ def search_tasks(tasks, query):
     ]
 
 def get_overdue_tasks(tasks, filterOverdue="Overdue"):
-    """
-    Get tasks that are past their due date and not completed.
-    
-    Args:
-        tasks (list): List of task dictionaries
-        
-    Returns:
-        list: List of overdue tasks
-    """
     today = datetime.now().strftime("%Y-%m-%d")
     if filterOverdue == "All":
         return tasks
