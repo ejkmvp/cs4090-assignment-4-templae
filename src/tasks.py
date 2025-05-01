@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 # File path for task storage
-DEFAULT_TASKS_FILE = "tasks.json"
+DEFAULT_TASKS_FILE = "data/tasks.json"
 
 def load_tasks(file_path=DEFAULT_TASKS_FILE):
     """
@@ -49,6 +49,9 @@ def save_tasks(tasks, file_path=DEFAULT_TASKS_FILE):
         tasks (list): List of task dictionaries
         file_path (str): Path to save the JSON file
     """
+    folderPart = "".join(file_path.split("/")[:-1])
+    if not os.path.isdir(folderPart):
+        os.mkdir(folderPart)
     with open(file_path, "w") as f:
         json.dump(tasks, f, indent=2)
 
@@ -147,3 +150,10 @@ def order_tasks(tasks, order_by):
         return sorted(tasks, key=(lambda x: x.get("category", "")))
     if order_by == "Due Date":
         return sorted(tasks, key=(lambda x: x.get("due_date", "")))
+    
+def delete_tasks(tasks, filtered_tasks):
+    for task in filtered_tasks:
+        #build map from ids to indices
+        idMap = {x[1]['id']: x[0] for x in enumerate(tasks)}
+        tasks.pop(idMap[task['id']])
+    return tasks

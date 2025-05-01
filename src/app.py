@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from tasks import load_tasks, save_tasks, filter_tasks_by_priority, filter_tasks_by_category, get_overdue_tasks, order_tasks
+from tasks import load_tasks, save_tasks, filter_tasks_by_priority, filter_tasks_by_category, get_overdue_tasks, order_tasks, delete_tasks
 import subprocess
 import os
 
@@ -51,9 +51,11 @@ def main():
             save_tasks(tasks)
             st.sidebar.success("Task added successfully!")
     st.sidebar.button("Run Tasks.py Basic Unit Tests", on_click=run_command, args=["pytest tests/test_basic.py"])
-    st.sidebar.button("Run Mocked Loading Tests", on_click=run_command, args=["pytest tests/test_advanced.py"]) #TODO Specifically sleect the mock test
-    st.sidebar.button("Run Parametrizeed ID Generation Test", on_click=run_command, args=["pytest tests/test_advanced.py"]) #TODO Specifically sleect the param test
+    st.sidebar.button("Run Mocked Loading Tests", on_click=run_command, args=["pytest tests/test_advanced.py -k \"test_load_tasks or test_load_tasks_invalid_data\""]) 
+    st.sidebar.button("Run Parametrizeed ID Generation Test", on_click=run_command, args=["pytest tests/test_advanced.py -k \"test_generate_unique_id\""]) 
     st.sidebar.button("Get Coverage Report", on_click=run_command, args=["pytest --cov=src tests/"])
+    st.sidebar.button("Generate HTML Report", on_click=run_command, args=["pytest --cov-report html --cov=src tests/"])
+    st.sidebar.button("Run BDD Tests", on_click=run_command, args=["pytest tests/feature/steps/test_add_steps.py"])
     # Main area to display tasks
     st.header("Your Tasks")
     
@@ -78,8 +80,7 @@ def main():
     if not show_completed:
         filtered_tasks = [task for task in filtered_tasks if not task["completed"]]
     
-    # TODO Apply Ordering
-    ordered_tasks = order_tasks(filtered_tasks, order_type)
+    filtered_tasks = order_tasks(filtered_tasks, order_type)
 
     # Display tasks
     for task in filtered_tasks:
@@ -102,6 +103,9 @@ def main():
                 tasks = [t for t in tasks if t["id"] != task["id"]]
                 save_tasks(tasks)
                 st.rerun()
-
+    if st.button("Delete Visible Tasks"):
+        tasks = delete_tasks(tasks, filtered_tasks)
+        save_tasks(tasks)
+        st.rerun()
 if __name__ == "__main__":
     main()

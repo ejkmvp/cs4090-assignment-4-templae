@@ -4,7 +4,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from tasks import search_tasks, load_tasks, save_tasks, generate_unique_id, filter_tasks_by_priority, filter_tasks_by_category, filter_tasks_by_completion, get_overdue_tasks, order_tasks
+from tasks import search_tasks, load_tasks, save_tasks, generate_unique_id, filter_tasks_by_priority, filter_tasks_by_category, filter_tasks_by_completion, get_overdue_tasks, order_tasks, delete_tasks
 
 @pytest.fixture
 def taskListOne():
@@ -105,3 +105,23 @@ def test_tdd_order_tasks_order_by_category(taskListTwo):
             continue
         else:
             currentSymbol += 1
+
+
+#Feature 3 - delete visible tasks
+#Test 1 - Delete tasks function deletes all visible tasks
+def test_tdd_delete_tasks_all_visible_tasks(taskListTwo):
+    tasks = taskListTwo
+    filteredTasks = tasks[0:5]
+    tasks = delete_tasks(tasks, filteredTasks)
+    for task in filteredTasks:
+        assert task not in tasks
+
+#Test 2 - tasks not in the filtered list do not get deleted
+def test_tdd_delete_tasks_keep_invisible_tasks(taskListTwo):
+    tasks = taskListTwo
+    filteredTasks = tasks[0:5]
+    outputTasks = delete_tasks(tasks, filteredTasks)
+    for task in tasks[5:]:
+        assert task in outputTasks
+
+
