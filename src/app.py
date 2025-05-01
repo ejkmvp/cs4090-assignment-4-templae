@@ -8,15 +8,15 @@ import os
 @st.dialog("Test Runner")
 def run_command(command):
     with st.spinner("Running Tests"):
-        currentDirectory = os.getcwd() #store current directory so we can go back after running test. I feel like this is necessary because we dont want to start writing our tasks.json to other dirs
-        os.chdir("../")
+        #currentDirectory = os.getcwd() #store current directory so we can go back after running test. I feel like this is necessary because we dont want to start writing our tasks.json to other dirs
+        #os.chdir("../")
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         st.code(result.stdout + result.stderr, language='bash')
         if result.returncode == 0:
             st.success("Tests Passed!")
         else:
             st.error("Tests Failed!")
-        os.chdir(currentDirectory)
+        #os.chdir(currentDirectory)
 
 def main():
     st.title("To-Do Application")
